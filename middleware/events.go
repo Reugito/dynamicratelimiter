@@ -60,7 +60,7 @@ func (rl *RateLimiter) cleanupOldClients() {
 }
 
 func (rl *RateLimiter) periodicRateLimitCleanup() {
-	ticker := time.NewTicker(time.Second * 30)
+	ticker := time.NewTicker(rl.config.TimeFrame)
 	defer ticker.Stop()
 	fmt.Println("Running ticker for periodic cleanup...")
 	for range ticker.C {

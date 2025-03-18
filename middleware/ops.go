@@ -34,7 +34,7 @@ func (rl *RateLimiter) incrementRequestCount(clientKey string) {
 func (rl *RateLimiter) RateLimitMetricsHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		stats := make(map[string]int)
-		rl.requestStats.Range(func(key, value interface{}) bool {
+		rl.rateLimits.Range(func(key, value interface{}) bool {
 			stats[key.(string)] = value.(int)
 			return true
 		})
