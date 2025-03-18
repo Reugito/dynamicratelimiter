@@ -43,6 +43,9 @@ func NewRateLimiter(cfg config.RateLimitConfig) *RateLimiter {
 
 		if redisClient != nil {
 			fmt.Println("✅✅ Loading rate limits from Redis...")
+			if rl.config.RedisHashName == "" {
+				rl.config.RedisHashName = "ratelimits"
+			}
 			rl.loadRateLimitsFromRedis()
 			rl.redisClient.CreateRedisHash(context.Background(), rl.config.RedisHashName)
 		} else {
