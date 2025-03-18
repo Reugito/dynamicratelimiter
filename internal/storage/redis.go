@@ -24,7 +24,7 @@ func NewRedisService(ip, port, password string, db int) *RedisService {
 	// Check Redis connection
 	if err := redisClient.Ping(context.TODO()).Err(); err != nil {
 		fmt.Println("❌ Failed to connect to Redis:", err)
-		redisClient = nil // Fallback to in-memory rate limiting
+		return nil // Fallback to in-memory rate limiting
 	} else {
 		fmt.Println("✅ Connected to Redis at", fmt.Sprintf("%s:%s", ip, port))
 	}

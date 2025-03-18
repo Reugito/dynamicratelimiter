@@ -45,6 +45,9 @@ func NewRateLimiter(cfg config.RateLimitConfig) *RateLimiter {
 			fmt.Println("✅✅ Loading rate limits from Redis...")
 			rl.loadRateLimitsFromRedis()
 			rl.redisClient.CreateRedisHash(context.Background(), rl.config.RedisHashName)
+		} else {
+			fmt.Println("�� Failed to connect to Redis, falling back to in-memory rate limiter...")
+			rl.config.EnableRedis = false
 		}
 	} else {
 		fmt.Print("✅✅ Using in-memory rate limiter...")
