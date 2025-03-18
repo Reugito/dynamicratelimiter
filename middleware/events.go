@@ -100,7 +100,7 @@ func (rl *RateLimiter) monitorExceededLimits() {
 				if !ok {
 					return true
 				}
-				if currentLimit > rl.config.MaxRateLimit {
+				if currentLimit < rl.config.MaxRateLimit {
 					newLimit := currentLimit + rl.config.IncreaseFactor
 					rl.rateLimits.Store(endpoint, newLimit)
 				}
