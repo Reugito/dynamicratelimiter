@@ -20,7 +20,7 @@ func (rl *RateLimiter) dumpRateLimitsToRedis() {
 
 			return true
 		})
-		rl.redisClient.SaveToRedisHash(context.Background(), "request_stats", hashSet, 15*time.Minute)
+		rl.redisClient.SaveToRedisHash(context.Background(), rl.config.RedisHashName, hashSet, 15*time.Minute)
 
 	}
 }
@@ -80,7 +80,7 @@ func (rl *RateLimiter) trackExceededIP(ip, endpoint string) {
 
 // monitorExceededLimits checks if any endpoint has more than 10 unique IPs exceeding their limit
 func (rl *RateLimiter) monitorExceededLimits() {
-	ticker := time.NewTicker(3 * time.Second)
+	ticker := time.NewTicker(rl.config.TimeFrame)
 	defer ticker.Stop()
 	fmt.Println("Running ticker for monitoring exceeded limits...")
 	for range ticker.C {
@@ -100,7 +100,7 @@ func (rl *RateLimiter) monitorExceededLimits() {
 				if !ok {
 					return true
 				}
-				if currentLimit > rl.config.MaxRateLimitRange {
+				if currentLimit > rl.config.MaxRateLimit {
 					newLimit := currentLimit + rl.config.IncreaseFactor
 					rl.rateLimits.Store(endpoint, newLimit)
 				}

@@ -47,7 +47,7 @@ func (rl *RateLimiter) loadRateLimitsFromRedis() {
 	ctx := context.Background()
 
 	// Fetch all rate limits in a single Redis request
-	rateLimits, err := rl.redisClient.FetchFromRedisHash(ctx, "rate_limits")
+	rateLimits, err := rl.redisClient.FetchFromRedisHash(ctx, rl.config.RedisHashName)
 	if err != nil {
 		fmt.Println("❌ Failed to load rate limits:", err)
 		return

@@ -44,7 +44,7 @@ func NewRateLimiter(cfg config.RateLimitConfig) *RateLimiter {
 		if redisClient != nil {
 			fmt.Println("✅✅ Loading rate limits from Redis...")
 			rl.loadRateLimitsFromRedis()
-			rl.redisClient.CreateRedisHash(context.Background(), "request_stats")
+			rl.redisClient.CreateRedisHash(context.Background(), rl.config.RedisHashName)
 		}
 	} else {
 		fmt.Print("✅✅ Using in-memory rate limiter...")
@@ -53,12 +53,15 @@ func NewRateLimiter(cfg config.RateLimitConfig) *RateLimiter {
 	// Start cleanup and monitoring once
 	rl.once.Do(func() {
 		go rl.cleanupOldClients()
-		// go rl.logClients()
+
 		if rl.config.EnableRedis {
 			go rl.dumpRateLimitsToRedis() // Monitor request counts
 		}
-		go rl.periodicRateLimitCleanup()
-		go rl.monitorExceededLimits() // Monitor IP exceed limits
+		if rl.config.EnableDynamicRateLimiting {
+			// go rl.logClients()
+			go rl.periodicRateLimitCleanup()
+			go rl.monitorExceededLimits() // Monitor IP exceed limits
+		}
 
 	})
 
@@ -104,8 +107,10 @@ func (rl *RateLimiter) Middleware() gin.HandlerFunc {
 
 		if err := client.limiter.Wait(ctx); err != nil {
 			// Track request count
-			rl.incrementRequestCount(clientKey)
-			rl.trackExceededIP(ip, endpoint)
+			if rl.config.EnableDynamicRateLimiting {
+				rl.incrementRequestCount(clientKey)
+				rl.trackExceededIP(ip, endpoint)
+			}
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "Rate limit exceeded"})
 			return
 		}

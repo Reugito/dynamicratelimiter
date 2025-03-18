@@ -15,11 +15,11 @@ func main() {
 		RedisPort:     "6379",
 		RedisPassword: "",
 
-		EnableRedis:             false,
-		RedisHashName:           "request_stats",
-		EnableDynamicMonitoring: false,
-		DefaultLimit:            3,
-		IPThreshold:             3,
+		EnableRedis:               false,
+		RedisHashName:             "request_stats",
+		EnableDynamicRateLimiting: false,
+		DefaultLimit:              3,
+		IPThreshold:               3,
 	})
 
 	// Apply middleware
