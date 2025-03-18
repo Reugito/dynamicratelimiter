@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Reugito/dynamicratelimiter/internal/config"
-	"github.com/Reugito/dynamicratelimiter/internal/middleware"
+	"github.com/Reugito/dynamicratelimiter/config"
+	"github.com/Reugito/dynamicratelimiter/middleware"
 	"github.com/gin-gonic/gin"
 )
 

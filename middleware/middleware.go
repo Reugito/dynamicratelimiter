@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Reugito/dynamicratelimiter/internal/config"
+	"github.com/Reugito/dynamicratelimiter/config"
 	"github.com/Reugito/dynamicratelimiter/internal/storage"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
