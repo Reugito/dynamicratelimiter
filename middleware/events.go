@@ -105,6 +105,7 @@ func (rl *RateLimiter) monitorExceededLimits() {
 					rl.rateLimits.Store(endpoint, newLimit)
 				}
 			}
+			rl.exceedingIPs.Delete(endpoint)
 			return true
 		})
 	}
