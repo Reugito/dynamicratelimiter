@@ -60,17 +60,17 @@ func (r *RedisService) SaveToRedisHash(ctx context.Context, key string, data map
 
 func (r *RedisService) CreateRedisHash(ctx context.Context, key string) error {
 	// Check if the hash set exists
-	exists, err := r.client.Exists(ctx, key).Result()
+	_, err := r.client.Exists(ctx, key).Result()
 	if err != nil {
 		return err
 	}
 
 	// If the hash set does not exist, create an empty one
-	if exists == 0 {
-		if err := r.client.HSet(ctx, key, "init", "1").Err(); err != nil {
-			return err
-		}
-	}
+	// if exists == 0 {
+	// 	if err := r.client.HSet(ctx, key, "init", "1").Err(); err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	return nil
 }

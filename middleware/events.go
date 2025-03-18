@@ -3,12 +3,13 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 )
 
 // dumpRateLimitsToRedis logs the number of requests per endpoint per IP
-func (rl *RateLimiter) dumpRateLimitsToRedis() {
+func (rl *rateLimiter) dumpRateLimitsToRedis() {
 	ticker := time.NewTicker(10 * time.Second) // Adjust frequency as needed
 	defer ticker.Stop()
 
@@ -20,13 +21,13 @@ func (rl *RateLimiter) dumpRateLimitsToRedis() {
 
 			return true
 		})
-		rl.redisClient.SaveToRedisHash(context.Background(), rl.config.RedisHashName, hashSet, 15*time.Minute)
+		rl.redisClient.SaveToRedisHash(context.Background(), rl.config.RedisHashName, hashSet, 0)
 
 	}
 }
 
 // logClients periodically prints stored rate limiters for debugging
-func (rl *RateLimiter) logClients() {
+func (rl *rateLimiter) logClients() {
 	ticker := time.NewTicker(15 * time.Second)
 	defer ticker.Stop()
 	for range ticker.C {
@@ -39,7 +40,7 @@ func (rl *RateLimiter) logClients() {
 }
 
 // cleanupOldClients removes stale clients periodically
-func (rl *RateLimiter) cleanupOldClients() {
+func (rl *rateLimiter) cleanupOldClients() {
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 
@@ -59,7 +60,7 @@ func (rl *RateLimiter) cleanupOldClients() {
 	}
 }
 
-func (rl *RateLimiter) periodicRateLimitCleanup() {
+func (rl *rateLimiter) periodicRateLimitCleanup() {
 	ticker := time.NewTicker(rl.config.TimeFrame)
 	defer ticker.Stop()
 	fmt.Println("Running ticker for periodic cleanup...")
@@ -70,14 +71,14 @@ func (rl *RateLimiter) periodicRateLimitCleanup() {
 	}
 }
 
-func (rl *RateLimiter) clearClients() {
+func (rl *rateLimiter) clearClients() {
 	rl.rateLimitsMu.Lock()
 	rl.clients.Clear()
 	rl.rateLimitsMu.Unlock()
 }
 
 // trackExceededIP tracks unique IPs exceeding the rate limit for an endpoint
-func (rl *RateLimiter) trackExceededIP(ip, endpoint string) {
+func (rl *rateLimiter) trackExceededIP(ip, endpoint string) {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
 	ipSet, _ := rl.exceedingIPs.LoadOrStore(endpoint, &sync.Map{})
@@ -85,15 +86,18 @@ func (rl *RateLimiter) trackExceededIP(ip, endpoint string) {
 }
 
 // monitorExceededLimits checks if any endpoint has more than 10 unique IPs exceeding their limit
-func (rl *RateLimiter) monitorExceededLimits() {
+func (rl *rateLimiter) monitorExceededLimits() {
 	ticker := time.NewTicker(rl.config.TimeFrame)
 	defer ticker.Stop()
 	fmt.Println("Running ticker for monitoring exceeded limits...")
 	for range ticker.C {
 		rl.exceedingIPs.Range(func(endpoint, ipMap interface{}) bool {
 			count := 0
+			exceedingIPs := []string{}
+
 			ipMap.(*sync.Map).Range(func(key, _ interface{}) bool {
 				count++
+				exceedingIPs = append(exceedingIPs, key.(string))
 				return true
 			})
 			if count >= rl.config.IPThreshold {
@@ -109,11 +113,29 @@ func (rl *RateLimiter) monitorExceededLimits() {
 				if currentLimit < rl.config.MaxRateLimit {
 					newLimit := currentLimit + rl.config.IncreaseFactor
 					rl.rateLimits.Store(endpoint, newLimit)
+					if rl.config.EnableRedis {
+						go rl.logExceedingIPsInRedis(endpoint.(string), currentLimit, newLimit, exceedingIPs)
+					}
 				}
 				rl.clearClients()
+
 			}
 			rl.exceedingIPs.Delete(endpoint)
 			return true
 		})
 	}
+}
+
+func (rl *rateLimiter) logExceedingIPsInRedis(endpoint string, rateLimit, newLimit int, exceedingIPs []string) {
+	data := map[string]string{
+		"rate_limit_log": endpoint,
+		"timestamp":      time.Now().Format(time.RFC3339),
+		"previous_limit": fmt.Sprintf("%d", rateLimit),
+		"new_limit":      fmt.Sprintf("%d", newLimit),
+		"exceeding_ips":  strings.Join(exceedingIPs, ","),
+	}
+	if err := rl.redisClient.CreateRedisHash(context.Background(), "ratelimit_log_"+endpoint); err != nil {
+		return
+	}
+	rl.redisClient.SaveToRedisHash(context.Background(), "ratelimit_log_"+endpoint, data, 0)
 }

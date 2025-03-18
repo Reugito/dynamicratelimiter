@@ -24,14 +24,14 @@ func getNetworkIP(c *gin.Context) (string, error) {
 }
 
 // trackRequest increments the request count per IP and endpoint
-func (rl *RateLimiter) incrementRequestCount(clientKey string) {
+func (rl *rateLimiter) incrementRequestCount(clientKey string) {
 	countIface, _ := rl.requestStats.LoadOrStore(clientKey, 0)
 	count := countIface.(int) + 1
 	rl.requestStats.Store(clientKey, count)
 }
 
 // RateLimitMetricsHandler exposes request stats for monitoring
-func (rl *RateLimiter) RateLimitMetricsHandler() gin.HandlerFunc {
+func (rl *rateLimiter) RateLimitMetricsHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		stats := make(map[string]int)
 		rl.rateLimits.Range(func(key, value interface{}) bool {
@@ -43,7 +43,7 @@ func (rl *RateLimiter) RateLimitMetricsHandler() gin.HandlerFunc {
 	}
 }
 
-func (rl *RateLimiter) loadRateLimitsFromRedis() {
+func (rl *rateLimiter) loadRateLimitsFromRedis() {
 	ctx := context.Background()
 
 	// Fetch all rate limits in a single Redis request

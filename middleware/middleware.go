@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -13,7 +12,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-type RateLimiter struct {
+type rateLimiter struct {
 	config      config.RateLimitConfig
 	redisClient *storage.RedisService
 	clients     sync.Map // Tracks request counts per IP + endpoint
@@ -33,49 +32,8 @@ type RateLimiterClient struct {
 	lastSeen time.Time
 }
 
-// NewRateLimiter initializes a new rate limiter instance
-func NewRateLimiter(cfg config.RateLimitConfig) *RateLimiter {
-	rl := &RateLimiter{config: cfg}
-	if cfg.EnableRedis {
-		fmt.Println("�� Using Redis as rate limiter backend...")
-		redisClient := storage.NewRedisService(cfg.RedisHost, cfg.RedisPort, cfg.RedisPassword, cfg.RedisDB)
-		rl.redisClient = redisClient
-
-		if redisClient != nil {
-			fmt.Println("✅✅ Loading rate limits from Redis...")
-			if rl.config.RedisHashName == "" {
-				rl.config.RedisHashName = "ratelimits"
-			}
-			rl.loadRateLimitsFromRedis()
-			rl.redisClient.CreateRedisHash(context.Background(), rl.config.RedisHashName)
-		} else {
-			fmt.Println("�� Failed to connect to Redis, falling back to in-memory rate limiter...")
-			rl.config.EnableRedis = false
-		}
-	} else {
-		fmt.Print("✅✅ Using in-memory rate limiter...")
-	}
-
-	// Start cleanup and monitoring once
-	rl.once.Do(func() {
-		go rl.cleanupOldClients()
-
-		if rl.config.EnableRedis {
-			go rl.dumpRateLimitsToRedis() // Monitor request counts
-		}
-		if rl.config.EnableDynamicRateLimiting {
-			// go rl.logClients()
-			// go rl.periodicRateLimitCleanup()
-			go rl.monitorExceededLimits() // Monitor IP exceed limits
-		}
-
-	})
-
-	return rl
-}
-
 // Middleware applies rate limiting using Redis (if enabled) or in-memory limiters
-func (rl *RateLimiter) Middleware() gin.HandlerFunc {
+func (rl *rateLimiter) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ip, err := getNetworkIP(c)
 		if err != nil {
