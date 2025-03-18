@@ -1,0 +1,32 @@
+# Binaries and build artifacts
+/bin/
+/build/
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+
+# Go modules
+
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+*.tmp
+
+# Vendor directory (if not using vendoring)
+vendor/
+
+# Cache files
+*.cache
+*.test
+
+# Git-specific
+.DS_Store
+.env
