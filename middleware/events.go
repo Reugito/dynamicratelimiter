@@ -70,6 +70,12 @@ func (rl *RateLimiter) periodicRateLimitCleanup() {
 	}
 }
 
+func (rl *RateLimiter) clearClients() {
+	rl.rateLimitsMu.Lock()
+	rl.clients.Clear()
+	rl.rateLimitsMu.Unlock()
+}
+
 // trackExceededIP tracks unique IPs exceeding the rate limit for an endpoint
 func (rl *RateLimiter) trackExceededIP(ip, endpoint string) {
 	rl.mu.Lock()
@@ -104,6 +110,7 @@ func (rl *RateLimiter) monitorExceededLimits() {
 					newLimit := currentLimit + rl.config.IncreaseFactor
 					rl.rateLimits.Store(endpoint, newLimit)
 				}
+				rl.clearClients()
 			}
 			rl.exceedingIPs.Delete(endpoint)
 			return true

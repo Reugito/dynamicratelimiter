@@ -59,7 +59,7 @@ func NewRateLimiter(cfg config.RateLimitConfig) *RateLimiter {
 		}
 		if rl.config.EnableDynamicRateLimiting {
 			// go rl.logClients()
-			go rl.periodicRateLimitCleanup()
+			// go rl.periodicRateLimitCleanup()
 			go rl.monitorExceededLimits() // Monitor IP exceed limits
 		}
 
