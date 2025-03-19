@@ -24,11 +24,11 @@ func getNetworkIP(c *gin.Context) (string, error) {
 }
 
 // trackRequest increments the request count per IP and endpoint
-func (rl *rateLimiter) incrementRequestCount(clientKey string) {
-	countIface, _ := rl.requestStats.LoadOrStore(clientKey, 0)
-	count := countIface.(int) + 1
-	rl.requestStats.Store(clientKey, count)
-}
+// func (rl *rateLimiter) incrementRequestCount(clientKey string) {
+// 	countIface, _ := rl.requestStats.LoadOrStore(clientKey, 0)
+// 	count := countIface.(int) + 1
+// 	rl.requestStats.Store(clientKey, count)
+// }
 
 // RateLimitMetricsHandler exposes request stats for monitoring
 func (rl *rateLimiter) RateLimitMetricsHandler() gin.HandlerFunc {

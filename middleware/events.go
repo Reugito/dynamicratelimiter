@@ -134,8 +134,5 @@ func (rl *rateLimiter) logExceedingIPsInRedis(endpoint string, rateLimit, newLim
 		"new_limit":      fmt.Sprintf("%d", newLimit),
 		"exceeding_ips":  strings.Join(exceedingIPs, ","),
 	}
-	if err := rl.redisClient.CreateRedisHash(context.Background(), "ratelimit_log_"+endpoint); err != nil {
-		return
-	}
-	rl.redisClient.SaveToRedisHash(context.Background(), "ratelimit_log_"+endpoint, data, 0)
+	rl.redisClient.PushToList(context.Background(), "ratelimit_log_"+endpoint, data, 0)
 }

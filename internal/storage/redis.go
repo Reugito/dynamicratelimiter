@@ -74,3 +74,20 @@ func (r *RedisService) CreateRedisHash(ctx context.Context, key string) error {
 
 	return nil
 }
+
+func (r *RedisService) PushToList(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
+	err := r.client.LPush(ctx, key, value).Err()
+	if err != nil {
+		return err
+	}
+
+	// Set TTL only if it's greater than 0
+	if ttl > 0 {
+		err = r.client.Expire(ctx, key, ttl).Err()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

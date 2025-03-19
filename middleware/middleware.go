@@ -22,8 +22,8 @@ type rateLimiter struct {
 	mu           sync.Mutex
 	rateLimitsMu sync.Mutex // Lock for rateLimits
 
-	once         sync.Once
-	requestStats sync.Map // Tracks request counts per IP + endpoint:  count of requests  souly for monitoring purpose no responsibility in ratelimiter
+	once sync.Once
+	// requestStats sync.Map // Tracks request counts per IP + endpoint:  count of requests  souly for monitoring purpose no responsibility in ratelimiter
 	exceedingIPs sync.Map // Tracks unique IPs exceeding limits per endpoint
 }
 
@@ -72,7 +72,7 @@ func (rl *rateLimiter) Middleware() gin.HandlerFunc {
 		if err := client.limiter.Wait(ctx); err != nil {
 			// Track request count
 			if rl.config.EnableDynamicRateLimiting {
-				rl.incrementRequestCount(clientKey)
+				// rl.incrementRequestCount(clientKey)
 				rl.trackExceededIP(ip, endpoint)
 			}
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "Rate limit exceeded"})
