@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -76,8 +77,12 @@ func (r *RedisService) CreateRedisHash(ctx context.Context, key string) error {
 }
 
 func (r *RedisService) PushToList(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
-	err := r.client.LPush(ctx, key, fmt.Sprintf("%v", value)).Err()
+	jsonData, err := json.Marshal(value)
 	if err != nil {
+		return err
+	}
+
+	if err := r.client.LPush(ctx, key, jsonData).Err(); err != nil {
 		return err
 	}
 
