@@ -27,7 +27,7 @@ type rateLimiter struct {
 	exceedingIPs sync.Map // Tracks unique IPs exceeding limits per endpoint
 }
 
-type RateLimiterClient struct {
+type rateLimiterClient struct {
 	limiter  *rate.Limiter
 	lastSeen time.Time
 }
@@ -47,20 +47,20 @@ func (rl *rateLimiter) Middleware() gin.HandlerFunc {
 		// In-memory rate limiting
 		rl.mu.Lock()
 		clientIface, exists := rl.clients.Load(clientKey)
-		var client *RateLimiterClient
+		var client *rateLimiterClient
 		if !exists {
 			rateLimit, exists := rl.rateLimits.Load(endpoint)
 			if !exists {
-				rateLimit = rl.config.DefaultLimit
+				rateLimit = rl.config.RateLimits.DefaultRequestsPerSec
 				rl.rateLimits.Store(endpoint, rateLimit)
 			}
-			client = &RateLimiterClient{
+			client = &rateLimiterClient{
 				limiter:  rate.NewLimiter(rate.Limit(rateLimit.(int)), 1),
 				lastSeen: time.Now(),
 			}
 			rl.clients.Store(clientKey, client)
 		} else {
-			client = clientIface.(*RateLimiterClient)
+			client = clientIface.(*rateLimiterClient)
 		}
 		client.lastSeen = time.Now()
 		rl.mu.Unlock()
@@ -71,11 +71,11 @@ func (rl *rateLimiter) Middleware() gin.HandlerFunc {
 
 		if err := client.limiter.Wait(ctx); err != nil {
 			// Track request count
-			if rl.config.EnableDynamicRateLimiting {
+			if rl.config.EnableAdaptiveRateLimit {
 				// rl.incrementRequestCount(clientKey)
 				rl.trackExceededIP(ip, endpoint)
 			}
-			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "Rate limit exceeded"})
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"message": "Too many requests, please try again later.", "status": http.StatusTooManyRequests})
 			return
 		}
 
