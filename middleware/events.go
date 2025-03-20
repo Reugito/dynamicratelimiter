@@ -46,17 +46,16 @@ func (rl *rateLimiter) cleanupOldClients() {
 
 	fmt.Println("Running ticker for cleaning up old clients...")
 	for range ticker.C {
-		rl.rateLimitsMu.Lock()
+		rl.clientsMu.Lock()
 		now := time.Now()
 		rl.clients.Range(func(key, value interface{}) bool {
 			client := value.(*rateLimiterClient)
 			if now.Sub(client.lastSeen) > 5*time.Second {
-				fmt.Printf("Removing old client: %s\n", key)
 				rl.clients.Delete(key)
 			}
 			return true
 		})
-		rl.rateLimitsMu.Unlock()
+		rl.clientsMu.Unlock()
 	}
 }
 
@@ -81,9 +80,9 @@ func (rl *rateLimiter) periodicRateLimitCleanup() {
 }
 
 func (rl *rateLimiter) clearClients() {
-	rl.rateLimitsMu.Lock()
+	rl.clientsMu.Lock()
 	rl.clients.Clear()
-	rl.rateLimitsMu.Unlock()
+	rl.clientsMu.Unlock()
 }
 
 // trackExceededIP tracks unique IPs exceeding the rate limit for an endpoint

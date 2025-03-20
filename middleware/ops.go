@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"strconv"
 	"sync"
 
@@ -29,19 +28,6 @@ func getNetworkIP(c *gin.Context) (string, error) {
 // 	count := countIface.(int) + 1
 // 	rl.requestStats.Store(clientKey, count)
 // }
-
-// RateLimitMetricsHandler exposes request stats for monitoring
-func (rl *rateLimiter) RateLimitMetricsHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		stats := make(map[string]int)
-		rl.rateLimits.Range(func(key, value interface{}) bool {
-			stats[key.(string)] = value.(int)
-			return true
-		})
-
-		c.JSON(http.StatusOK, stats)
-	}
-}
 
 func (rl *rateLimiter) loadRateLimitsFromRedis() {
 	ctx := context.Background()

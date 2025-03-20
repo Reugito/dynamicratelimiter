@@ -19,8 +19,8 @@ type rateLimiter struct {
 
 	rateLimits sync.Map
 
-	mu           sync.Mutex
-	rateLimitsMu sync.Mutex // Lock for rateLimits
+	mu        sync.Mutex
+	clientsMu sync.Mutex // Lock for clients
 
 	once sync.Once
 	// requestStats sync.Map // Tracks request counts per IP + endpoint:  count of requests  souly for monitoring purpose no responsibility in ratelimiter

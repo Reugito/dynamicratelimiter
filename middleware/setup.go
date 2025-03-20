@@ -34,7 +34,7 @@ func setupRedis(rl *rateLimiter) {
 	redisClient := storage.NewRedisService(rl.config.Redis.Host, rl.config.Redis.Port, rl.config.Redis.Password, rl.config.Redis.DatabaseIndex)
 	rl.redisClient = redisClient
 	if redisClient != nil {
-		fmt.Println("✅✅ Loading rate limits from Redis...")
+		fmt.Println("✅ ✅ Loading rate limits from Redis...")
 		if rl.config.Redis.RateLimitKey == "" {
 			rl.config.Redis.RateLimitKey = "rate_limits_config"
 			fmt.Println("⚠️ No Redis hash name provided, using default:", rl.config.Redis.RateLimitKey)
