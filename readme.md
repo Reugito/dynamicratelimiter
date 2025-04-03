@@ -26,12 +26,13 @@ A **highly configurable, endpoint-based rate limiter** for the **Gin framework**
 🎯 Features
 -----------
 
-✅ **Per-Endpoint Rate Limiting** - Limits requests based on IP & endpoint.
-✅ **Dynamic Scaling** - Automatically increases or decreases rate limits based on API usage.
-✅ **User-Controlled Monitoring** - Enable or disable dynamic scaling via configuration.
-✅ **Configurable Storage** - Supports **Redis** or **in-memory map** storage.
-✅ **Customizable Thresholds** - Adjust rate limits based on API traffic patterns.
-✅ **Efficient & Scalable** - Optimized for high performance with **Gin**.
+1. **Per-Endpoint Rate Limiting** - Limits requests based on IP & endpoint.
+2. **Dynamic Scaling** - Automatically increases or decreases rate limits based on API usage.
+3. **User-Controlled Monitoring** - Enable or disable dynamic scaling via configuration.
+4. **Configurable Storage** - Supports **Redis** or **in-memory map** storage.
+5. **Customizable Thresholds** - Adjust rate limits based on API traffic patterns.
+6. **Efficient & Scalable** - Optimized for high performance with **Gin**.
+7. ***Redis is only used to store rate limits persistently. If the system restarts, the rate limits will be reloaded from Redis, ensuring continuity. Users have full access to manage these limits.***
 
 ⚙️ Installation
 ---------------
@@ -54,8 +55,9 @@ import (
 
 🔧 Configuration
 ----------------
-** This configuration enables dynamic rate limiting with Redis and monitoring. The rate limiter adjusts limits based on API consumption patterns **
-** Define rate-limiting settings using a structured configuration file. The settings allow you to specify the default rate limit, time frame, thresholds for dynamic scaling, and whether to enable monitoring. **
+1. **This configuration enables dynamic rate limiting with Redis and monitoring. The rate limiter adjusts limits based on API consumption patterns**
+   
+3. **Define rate-limiting settings using a structured configuration file. The settings allow you to specify the default rate limit, time frame, thresholds for dynamic scaling, and whether to enable monitoring.**
 
 ## Setup
 The `SetupRateLimiter` function initializes and configures the rate limiter using environment variables.
@@ -196,14 +198,12 @@ The **monitoring service** dynamically adjusts rate limits **based on API usage*
 ### **How It Works:**
 
 - Increases rate limits if API traffic exceeds a specified threshold.
-- Decreases rate limits when traffic drops below a certain level.
 - Prevents excessive requests from overwhelming the server.
 - Can be enabled or disabled via configuration.
 - Uses an adaptive approach to prevent sudden spikes in traffic from causing disruptions.
 - Regularly logs and reports rate limit changes for better visibility and debugging.
 - Optimizes API performance by balancing request load dynamically.
-- Can be integrated with external monitoring tools for real-time analysis.
-    
+- ***Redis is only used to store rate limits persistently. If the system restarts, the rate limits will be reloaded from Redis, ensuring continuity. Users have full access to manage these limits.***
 
 🔌 API Integration
 ------------------
@@ -223,6 +223,8 @@ To integrate the rate limiter into an existing Gin API:
 ----------------------
 
 ✅ **Admin API to Enable/Disable Monitoring**✅ **Dashboard for Real-Time Monitoring**✅ **Custom Limits for Specific Endpoints**✅ **Logging & Alert System**
+
+***Redis is only used to store rate limits persistently. If the system restarts, the rate limits will be reloaded from Redis, ensuring continuity. Users have full access to manage these limits.***
 
 📝 License
 ----------
