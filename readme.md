@@ -81,7 +81,7 @@ The `SetupRateLimiter` function initializes and configures the rate limiter usin
   - `EnableAdaptiveRateLimit`: Enables dynamic scaling of rate limits.
 
 ## Code Implementation
-1. This configuration enables dynamic rate limiting with Redis and monitoring. The rate limiter adjusts limits based on API consumption patterns.
+### **1. This configuration enables dynamic rate limiting with Redis and monitoring. The rate limiter adjusts limits based on API consumption patterns.**
 	```go
 	import (
 		"github.com/Reugito/dynamicratelimiter/config"
@@ -141,7 +141,35 @@ The `SetupRateLimiter` function initializes and configures the rate limiter usin
 	}
 	```
 
-2. 
+### **2. Dynamic Rate Limiter with Monitoring and Without Redis**
+	```go
+	rateLimitConf := config.RateLimitConfig{
+		Redis: config.RedisConfig{
+			EnableRedis: false,
+		},
+		RateLimits: config.RateLimitSettings{
+			GlobalMaxRequestsPerSec: globalMaxRateLimitInt,
+			DefaultRequestsPerSec:   5,
+			MonitoringTimeFrame:     time.Duration(monitoringTimeFrameInt) * time.Second,
+			IncreaseFactor:          1,
+			IPExceedThreshold:       ipExceedThresholdInt,
+		},
+		EnableAdaptiveRateLimit: true,
+	}
+	```
+
+### **3. Simple Rate Limiter Without Monitoring and Without Redis**
+	```go
+	rateLimitConf := config.RateLimitConfig{
+		Redis: config.RedisConfig{
+			EnableRedis: false,
+		},
+		RateLimits: config.RateLimitSettings{
+			DefaultRequestsPerSec: 5,
+		},
+		EnableAdaptiveRateLimit: false,
+	}
+ 	```
 
    
 
@@ -160,20 +188,21 @@ Attach the rate-limiting middleware to the API routes to enforce request limits 
 
 Optionally start the dynamic monitoring system to automatically adjust limits based on traffic.
 
-📊 Dynamic Monitoring
----------------------
+
+## 📊 Dynamic Monitoring
 
 The **monitoring service** dynamically adjusts rate limits **based on API usage**. If enabled, it periodically evaluates traffic patterns and updates the limits accordingly.
 
 ### **How It Works:**
 
-*   Increases rate limits if API traffic exceeds a specified threshold.
-    
-*   Decreases rate limits when traffic drops below a certain level.
-    
-*   Prevents excessive requests from overwhelming the server.
-    
-*   Can be enabled or disabled via configuration.
+- Increases rate limits if API traffic exceeds a specified threshold.
+- Decreases rate limits when traffic drops below a certain level.
+- Prevents excessive requests from overwhelming the server.
+- Can be enabled or disabled via configuration.
+- Uses an adaptive approach to prevent sudden spikes in traffic from causing disruptions.
+- Regularly logs and reports rate limit changes for better visibility and debugging.
+- Optimizes API performance by balancing request load dynamically.
+- Can be integrated with external monitoring tools for real-time analysis.
     
 
 🔌 API Integration
