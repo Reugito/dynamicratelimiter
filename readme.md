@@ -46,6 +46,10 @@ go get github.com/Reugito/dynamicratelimiter
 ### **2️⃣ Import into Your Project**
 
 Import the package to use it within your Gin-based API.
+```go
+import (
+    "github.com/Reugito/dynamicratelimiter"
+)
 
 🔧 Configuration
 ----------------
