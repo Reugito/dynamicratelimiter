@@ -39,7 +39,9 @@ A **highly configurable, endpoint-based rate limiter** for the **Gin framework**
 ### **1️⃣ Install Package**
 
 Download the package using Go modules.
-``` go get github.com/Reugito/dynamicratelimiter ```
+```sh
+go get github.com/Reugito/dynamicratelimiter
+```
 
 ### **2️⃣ Import into Your Project**
 
