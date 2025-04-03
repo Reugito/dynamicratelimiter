@@ -50,11 +50,98 @@ Import the package to use it within your Gin-based API.
 import (
     "github.com/Reugito/dynamicratelimiter"
 )
+```
 
 🔧 Configuration
 ----------------
+** This configuration enables dynamic rate limiting with Redis and monitoring. The rate limiter adjusts limits based on API consumption patterns **
+** Define rate-limiting settings using a structured configuration file. The settings allow you to specify the default rate limit, time frame, thresholds for dynamic scaling, and whether to enable monitoring. **
 
-Define rate-limiting settings using a structured configuration file. The settings allow you to specify the default rate limit, time frame, thresholds for dynamic scaling, and whether to enable monitoring.
+### 1. Overview
+This configuration enables dynamic rate limiting with Redis and monitoring. The rate limiter adjusts limits based on API consumption patterns.
+
+## Setup
+The `SetupRateLimiter` function initializes and configures the rate limiter using environment variables.
+
+## Configuration Details
+
+- **Redis Configuration**
+  - `EnableRedis`: Enables or disables Redis integration.
+  - `Host`: Redis server hostname.
+  - `Port`: Redis server port.
+  - `Password`: Redis authentication password.
+  - `DatabaseIndex`: Redis database index.
+  - `RateLimitKey`: Key for storing rate limiter configurations in Redis.
+
+- **Rate Limit Settings**
+  - `GlobalMaxRequestsPerSec`: Maximum allowed requests per second globally. i.e dynamic ratlimiting will not breach this limit ± DefaultRequestsPerSec.
+  - `DefaultRequestsPerSec`: Default rate limit per second.
+  - `MonitoringTimeFrame`: Time frame (in seconds) for monitoring API consumption.
+  - `IncreaseFactor`: Factor by which rate limits increase when thresholds are exceeded.
+  - `IPExceedThreshold`: Number of IPs to monitor for increasing the rate limit.
+
+- **Adaptive Rate Limiting**
+  - `EnableAdaptiveRateLimit`: Enables dynamic scaling of rate limits.
+
+## Code Implementation
+```go
+import (
+	"github.com/Reugito/dynamicratelimiter/config"
+	"github.com/Reugito/dynamicratelimiter/middleware"
+	"github.com/gin-gonic/gin"
+	"os"
+	"strconv"
+	"time"
+)
+
+func SetupRateLimiter(router *gin.Engine) {
+	redisHost, redisPort := os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")
+	if redisHost == "" || redisPort == "" {
+		return
+	}
+
+	globalMaxRateLimitInt, err := strconv.Atoi(os.Getenv("GLOBAL_MAX_RATE_LIMIT"))
+	if err != nil {
+		globalMaxRateLimitInt = 20
+	}
+
+	monitoringTimeFrameInt, err := strconv.Atoi(os.Getenv("MONITORING_TIME_FRAME_IN_SECONDS"))
+	if err != nil {
+		monitoringTimeFrameInt = 10
+	}
+
+	ipExceedThresholdInt, err := strconv.Atoi(os.Getenv("IP_EXCEED_THRESHOLD"))
+	if err != nil {
+		ipExceedThresholdInt = 2
+	}
+
+	rateLimitConf := config.RateLimitConfig{
+		Redis: config.RedisConfig{
+			EnableRedis:   true,
+			Host:          redisHost,
+			Port:          redisPort,
+			Password:      os.Getenv("REDIS_PASSWORD"),
+			DatabaseIndex: 0,
+			RateLimitKey:  "api_rate_limit_config",
+		},
+		RateLimits: config.RateLimitSettings{
+			GlobalMaxRequestsPerSec: globalMaxRateLimitInt,
+			DefaultRequestsPerSec:   5,
+			MonitoringTimeFrame:     time.Duration(monitoringTimeFrameInt) * time.Second,
+			IncreaseFactor:          1,
+			IPExceedThreshold:       ipExceedThresholdInt,
+		},
+		EnableAdaptiveRateLimit: true,
+	}
+
+	rl := middleware.NewRateLimiter(rateLimitConf)
+
+	router.Use(rl.Middleware())
+	
+	router.GET("/rate-limit-conf", rl.RateLimitMetricsHandler())
+}
+```
+   
 
 🚀 Usage
 --------
