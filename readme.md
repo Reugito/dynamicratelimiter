@@ -26,7 +26,12 @@ A **highly configurable, endpoint-based rate limiter** for the **Gin framework**
 🎯 Features
 -----------
 
-✅ **Per-Endpoint Rate Limiting** - Limits requests based on IP & endpoint.✅ **Dynamic Scaling** - Automatically increases or decreases rate limits based on API usage.✅ **User-Controlled Monitoring** - Enable or disable dynamic scaling via configuration.✅ **Configurable Storage** - Supports **Redis** or **in-memory map** storage.✅ **Customizable Thresholds** - Adjust rate limits based on API traffic patterns.✅ **Efficient & Scalable** - Optimized for high performance with **Gin**.
+✅ **Per-Endpoint Rate Limiting** - Limits requests based on IP & endpoint.
+✅ **Dynamic Scaling** - Automatically increases or decreases rate limits based on API usage.
+✅ **User-Controlled Monitoring** - Enable or disable dynamic scaling via configuration.
+✅ **Configurable Storage** - Supports **Redis** or **in-memory map** storage.
+✅ **Customizable Thresholds** - Adjust rate limits based on API traffic patterns.
+✅ **Efficient & Scalable** - Optimized for high performance with **Gin**.
 
 ⚙️ Installation
 ---------------
@@ -34,6 +39,7 @@ A **highly configurable, endpoint-based rate limiter** for the **Gin framework**
 ### **1️⃣ Install Package**
 
 Download the package using Go modules.
+``` go get github.com/Reugito/dynamicratelimiter ```
 
 ### **2️⃣ Import into Your Project**
 
