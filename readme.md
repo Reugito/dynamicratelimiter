@@ -32,7 +32,7 @@ A **highly configurable, endpoint-based rate limiter** for the **Gin framework**
 4. **Configurable Storage** - Supports **Redis** or **in-memory map** storage.  
 5. **Customizable Thresholds** - Adjust rate limits based on API traffic patterns.  
 6. **Efficient & Scalable** - Optimized for high performance with **Gin**.  
-7. **Analysis & Tracking** - Users can check `ratelimit_log*(endpoint path)` in Redis to monitor how many times the rate limit increased and identify which IPs are responsible for exceeding limits.  
+7. **Analysis & Tracking** - Users can check `ratelimit_log_*(endpoint path)` in Redis to monitor how many times the rate limit increased and identify which IPs are responsible for exceeding limits.  
 
    ```json
    {
