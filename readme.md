@@ -86,7 +86,7 @@ The `SetupRateLimiter` function initializes and configures the rate limiter usin
   - `RateLimitKey`: Key for storing rate limiter configurations in Redis.
 
 - **Rate Limit Settings**
-  - `GlobalMaxRequestsPerSec`: ####Maximum allowed requests per second globally. i.e dynamic ratlimiting will not breach this limit ± DefaultRequestsPerSec.
+  - `GlobalMaxRequestsPerSec`: Maximum allowed requests per second globally. i.e dynamic ratlimiting will not breach this limit ± DefaultRequestsPerSec.
   - `DefaultRequestsPerSec`: Default rate limit per second.
   - `MonitoringTimeFrame`: Time frame (in seconds) for monitoring API consumption.
   - `IncreaseFactor`: Factor by which rate limits increase when thresholds are exceeded.
