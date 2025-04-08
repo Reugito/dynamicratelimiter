@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -24,7 +25,7 @@ func NewRedisService(ip, port, password string, db int) *RedisService {
 	// Check Redis connection
 	if err := redisClient.Ping(context.TODO()).Err(); err != nil {
 		fmt.Println("❌ Failed to connect to Redis:", err)
-		redisClient = nil // Fallback to in-memory rate limiting
+		return nil // Fallback to in-memory rate limiting
 	} else {
 		fmt.Println("✅ Connected to Redis at", fmt.Sprintf("%s:%s", ip, port))
 	}
@@ -60,14 +61,35 @@ func (r *RedisService) SaveToRedisHash(ctx context.Context, key string, data map
 
 func (r *RedisService) CreateRedisHash(ctx context.Context, key string) error {
 	// Check if the hash set exists
-	exists, err := r.client.Exists(ctx, key).Result()
+	_, err := r.client.Exists(ctx, key).Result()
 	if err != nil {
 		return err
 	}
 
 	// If the hash set does not exist, create an empty one
-	if exists == 0 {
-		if err := r.client.HSet(ctx, key, "init", "1").Err(); err != nil {
+	// if exists == 0 {
+	// 	if err := r.client.HSet(ctx, key, "init", "1").Err(); err != nil {
+	// 		return err
+	// 	}
+	// }
+
+	return nil
+}
+
+func (r *RedisService) PushToList(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
+	jsonData, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+
+	if err := r.client.LPush(ctx, key, jsonData).Err(); err != nil {
+		return err
+	}
+
+	// Set TTL only if it's greater than 0
+	if ttl > 0 {
+		err = r.client.Expire(ctx, key, ttl).Err()
+		if err != nil {
 			return err
 		}
 	}

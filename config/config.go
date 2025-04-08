@@ -1,24 +1,26 @@
 package config
 
-import (
-	"time"
-)
+import "time"
 
 type RateLimitConfig struct {
-	RedisHost     string
-	RedisPort     string
-	RedisPassword string
-	RedisDB       int
-	RedisHashName string // provide the redis hash name for storing the rate limit
+	Redis                   RedisConfig       // Redis-related settings
+	RateLimits              RateLimitSettings // Rate-limiting rules
+	EnableAdaptiveRateLimit bool              // If true, dynamically adjusts limits based on traffic
+}
 
-	EnableRedis bool // true if you want to store the endpoint and ratelimit configs in redis
+type RedisConfig struct {
+	EnableRedis   bool   // If true, Redis will be used for rate limiting
+	Host          string // Redis server hostname or IP address
+	Port          string // Redis server port
+	Password      string // Password for Redis authentication
+	DatabaseIndex int    // Redis database index
+	RateLimitKey  string // Redis key used for storing rate limit data
+}
 
-	MaxRateLimitRange int
-
-	DefaultLimit            int
-	TimeFrame               time.Duration
-	IPThreshold             int
-	IncreaseFactor          int
-	DecreaseFactor          int
-	EnableDynamicMonitoring bool
+type RateLimitSettings struct {
+	GlobalMaxRequestsPerSec int           // Maximum allowed requests per second globally
+	DefaultRequestsPerSec   int           // Default rate limit if no specific limit is set
+	MonitoringTimeFrame     time.Duration // Time frame for periodically monitoring excessive requests
+	IPExceedThreshold       int           // Number of unique IPs exceeding limit before increasing the rate
+	IncreaseFactor          int           // How much to increase the limit dynamically (new Limit = current limit  + IncreaseFactor)
 }

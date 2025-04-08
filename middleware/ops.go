@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"strconv"
 	"sync"
 
@@ -24,30 +23,17 @@ func getNetworkIP(c *gin.Context) (string, error) {
 }
 
 // trackRequest increments the request count per IP and endpoint
-func (rl *RateLimiter) incrementRequestCount(clientKey string) {
-	countIface, _ := rl.requestStats.LoadOrStore(clientKey, 0)
-	count := countIface.(int) + 1
-	rl.requestStats.Store(clientKey, count)
-}
+// func (rl *rateLimiter) incrementRequestCount(clientKey string) {
+// 	countIface, _ := rl.requestStats.LoadOrStore(clientKey, 0)
+// 	count := countIface.(int) + 1
+// 	rl.requestStats.Store(clientKey, count)
+// }
 
-// RateLimitMetricsHandler exposes request stats for monitoring
-func (rl *RateLimiter) RateLimitMetricsHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		stats := make(map[string]int)
-		rl.requestStats.Range(func(key, value interface{}) bool {
-			stats[key.(string)] = value.(int)
-			return true
-		})
-
-		c.JSON(http.StatusOK, stats)
-	}
-}
-
-func (rl *RateLimiter) loadRateLimitsFromRedis() {
+func (rl *rateLimiter) loadRateLimitsFromRedis() {
 	ctx := context.Background()
 
 	// Fetch all rate limits in a single Redis request
-	rateLimits, err := rl.redisClient.FetchFromRedisHash(ctx, "rate_limits")
+	rateLimits, err := rl.redisClient.FetchFromRedisHash(ctx, rl.config.Redis.RateLimitKey)
 	if err != nil {
 		fmt.Println("❌ Failed to load rate limits:", err)
 		return
