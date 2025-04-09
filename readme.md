@@ -235,7 +235,10 @@ To integrate the rate limiter into an existing Gin API:
 🔮 Future Enhancements
 ----------------------
 
-✅ **Admin API to Enable/Disable Monitoring**✅ **Dashboard for Real-Time Monitoring**✅ **Custom Limits for Specific Endpoints**✅ **Logging & Alert System**
+✅ **Admin API to Enable/Disable Monitoring**
+✅ **Dashboard for Real-Time Monitoring**
+✅ **Custom Limits for Specific Endpoints**
+✅ **Logging & Alert System**
 
 
 📝 License
